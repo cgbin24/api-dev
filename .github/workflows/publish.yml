@@ -1,24 +1,44 @@
 name: api-dev
- 
+
 on:
   push:
     branches:
-      - main  # 或者你的默认分支名称
- 
+      - main
+
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
- 
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout
         uses: actions/checkout@v2
- 
-      - name: Install and Build 🔧
-        run: |
-          npm install
-          npm run dev
-      - name: Deploy 🚀
-        uses: peaceiris/actions-gh-pages@v3
+
+      # 安装 Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./  # 或者你的构建输出目录
+          node-version: '16.x' # 使用项目所需的Node.js版本
+
+      # 缓存依赖项以提高构建性能
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+
+      # 安装项目依赖
+      - name: Install dependencies
+        run: npm install
+
+      # 构建项目（根据需要进行自定义）
+      # - name: Build the project
+      #   run: npm run build
+
+      # 假设你的run.sh脚本在项目的根目录下
+      - name: Run the script
+        run: chmod +x ./run.sh && ./run.sh
+
+      # 如果你的run.sh脚本需要后台运行，可以使用nohup和&来实现
+      # - name: Run the script in the background
+      #   run: nohup ./run.sh &
+
+# 注意：确保你的run.sh脚本具有可执行权限，并且在GitHub仓库中是可用的。
